@@ -27,7 +27,8 @@ class Board {
   bool black_turn; // true if it is black player's turn.
   bool red_in_check; // true if red is in check.
   bool black_in_check; // true if black is in check.
-  Unit* board[10][9]; // Fixed-size 2d array of pointers to Unit objects, but Unit is abstract parent class.
+  Unit* board[NUMROWS][NUMCOLS];
+  // Fixed-size 2d array of pointers to Unit objects, but Unit is abstract parent class.
   // All calls to board[row][col]->function will be polymorphic.
 };
 

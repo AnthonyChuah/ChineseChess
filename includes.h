@@ -18,6 +18,8 @@
 // Black unit is past river if row > 4.
 #define RED_PAST_RIVER 5
 // Red unit is past river if row < 5.
+#define NUMROWS 10
+#define NUMCOLS 9
 
 // Libraries used.
 #include <iostream>
