@@ -7,7 +7,7 @@ The rules are written here: http://www.chessvariants.com/xiangqi.html
 
 ## Board Layout
 
-Black pieces, signified by underscores around the unit letter, e.g. _R_ for the Black ChaRiot.
+Black pieces, signified by underscores around the unit letter, e.g. \_R\_ for the Black ChaRiot.
 
 ```
 +---=---=---=---=---=---=---=---=---+
