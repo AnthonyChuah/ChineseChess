@@ -8,6 +8,7 @@ class General : public Unit {
   General();
   General(int _row, int _col, bool _black, Board* _ptr);
   ~General();
+  std::string name() const;
   bool move(const int _rowsteps, const int _colsteps); // Instantiation of pure virtual function in Unit.
   void threatRange(std::set<std::pair<int, int> >& _dangerzones); // Instantiation of pure virtual in Unit.
   // General is a weird case: his threatRange vs an opponent General is a straight line of sight vertically.
