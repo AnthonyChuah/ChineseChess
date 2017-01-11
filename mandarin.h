@@ -11,6 +11,7 @@ class Mandarin : public Unit {
   std::string name() const;
   bool move(const int _rowsteps, const int _colsteps); // Instantiation of pure virtual function in Unit.
   void threatRange(std::set<std::pair<int, int> >& _dangerzones); // Instantiation of pure virtual in Unit.
+  bool withinPalace(const int _row, const int _col);
 };
 
 #endif

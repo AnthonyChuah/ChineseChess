@@ -19,7 +19,12 @@ class Unit {
   virtual bool move(const int _rowsteps, const int _colsteps) = 0; // Pure virtual: move unit.
   virtual void threatRange(std::set<std::pair<int, int> >& _dangerzones) = 0; // Pure virtual: accumulate the
   // set of coordinates which are within the strike-range of the units of a given player.
+  virtual void moveRange(std::set<std::pair<int, int> >& _dangerzones) = 0; // For General, Cannon.
  protected:
+  bool cellHasUnit(const int _row, const int _col);
+  bool cellHasAlly(const int _row, const int _col);
+  Unit* occupyCell(const int _row, const int _col);
+  void addToThreatRange(int _row, int _col, std::set<std::pair<int, int> >& _dangerzones);
   Board* boardptr;
   int row;
   int col;

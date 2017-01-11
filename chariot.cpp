@@ -27,25 +27,20 @@ bool Chariot::move(const int _rowsteps, const int _colsteps) {
   if (it == range.end())
     return false;
   // Else, found a movement destination within the range of the rook.
-  if (boardptr->board[destrow][destcol] != NULL) {
+  if (cellHasUnit(destrow, destcol)) {
     // The threatRange() function will NOT allow the murder of an ally, so no need to check for it.
-    // First assess if this move puts self in check.
-    if (!(Unit::assessMove(destrow, destcol))) {
+    if (!(assessMove(destrow, destcol))) {
       return false;
     } else {
-      delete boardptr->board[destrow][destcol]; // Delete the enemy piece.
-      boardptr->board[destrow][destcol] = this;
-      boardptr->board[row][col] = NULL;
-      row = destrow; col = destcol;
+      Unit* victim = occupyCell(destrow, destcol);
+      delete victim; // Delete the enemy piece.
     }
   } else {
-    if (!(Unit::assessMove(destrow, destcol))) {
+    // Else, the target cell has no unit.
+    if (!(assessMove(destrow, destcol))) {
       return false;
     } else {
-      // Walk into the empty spot.
-      boardptr->board[destrow][destcol] = this;
-      boardptr->board[row][col] = NULL;
-      row = destrow; col = destcol;
+      occupyCell(destrow, destcol);
     }
   }
   return true;
@@ -53,57 +48,54 @@ bool Chariot::move(const int _rowsteps, const int _colsteps) {
 
 void Chariot::threatRange(std::set<std::pair<int, int> >& _dangerzones) {
   // The "threat range" of a unit is the squares it may ATTACK into. This is used for evaluating Checks.
-  int searchrow = row, searchcol = col-1;
+  int searchrow, searchcol;
   // Search leftwards and append coordinates which are valid for this Chariot to reach to _dangerzones.
+  searchrow = row; searchcol = col-1;
   while (searchcol >= 0) {
-    if (boardptr->board[searchrow][searchcol] != NULL) {
-      if (boardptr->board[searchrow][searchcol]->colour() != is_black) {
-	std::pair<int, int> coords(searchrow, searchcol);
-	_dangerzones.insert(coords); // If it is of a different colour, you can move there by murdering it.
+    if (cellHasUnit(searchrow, searchcol)) {
+      if (!cellHasAlly(searchrow, searchcol)) {
+	_dangerzones.insert(std::make_pair(searchrow, searchcol));
       }
       break; // The square has a blocking unit. Break the while loop.
-    } // Else, it is an empty zone.
-    std::pair<int, int> coords(searchrow, searchcol);
-    _dangerzones.insert(coords); // Tagged this as a threat zone.
-    searchcol--;
+    } else {
+      _dangerzones.insert(std::make_pair(searchrow, searchcol));
+      searchcol--;
+    }
   }
   searchrow = row; searchcol = col+1; // Search rightwards.
-  while (searchcol <= 7) {
-    if (boardptr->board[searchrow][searchcol] != NULL) {
-      if (boardptr->board[searchrow][searchcol]->colour() != is_black) {
-	std::pair<int, int> coords(searchrow, searchcol);
-	_dangerzones.insert(coords); // If it is of a different colour, you can move there by murdering it.
+  while (searchcol < NUMCOLS) {
+    if (cellHasUnit(searchrow, searchcol)) {
+      if (!cellHasAlly(searchrow, searchcol)) {
+	_dangerzones.insert(std::make_pair(searchrow, searchcol));
       }
       break; // The square has a blocking unit. Break the while loop.
-    } // Else, it is an empty zone.
-    std::pair<int, int> coords(searchrow, searchcol);
-    _dangerzones.insert(coords); // Tagged this as a threat zone.
-    searchcol++;
+    } else {
+      _dangerzones.insert(std::make_pair(searchrow, searchcol));
+      searchcol++;
+    }
   }
-  searchrow = row+1; searchcol = col; // Search upwards.
-  while (searchrow <= 7) {
-    if (boardptr->board[searchrow][searchcol] != NULL) {
-      if (boardptr->board[searchrow][searchcol]->colour() != is_black) {
-	std::pair<int, int> coords(searchrow, searchcol);
-	_dangerzones.insert(coords); // If it is of a different colour, you can move there by murdering it.
+  searchrow = row+1; searchcol = col; // Search downwards.
+  while (searchrow <= 9) {
+    if (cellHasUnit(searchrow, searchcol)) {
+      if (!cellHasAlly(searchrow, searchcol)) {
+	_dangerzones.insert(std::make_pair(searchrow, searchcol));
       }
       break; // The square has a blocking unit. Break the while loop.
-    } // Else, it is an empty zone.
-    std::pair<int, int> coords(searchrow, searchcol);
-    _dangerzones.insert(coords); // Tagged this as a threat zone.
-    searchrow++;
+    } else {
+      _dangerzones.insert(std::make_pair(searchrow, searchcol));
+      searchrow++;
+    }
   }
-  searchrow = row-1; searchcol = col; // Search downwards.
+  searchrow = row-1; searchcol = col; // Search upwards.
   while (searchrow >= 0) {
-    if (boardptr->board[searchrow][searchcol] != NULL) {
-      if (boardptr->board[searchrow][searchcol]->colour() != is_black) {
-	std::pair<int, int> coords(searchrow, searchcol);
-	_dangerzones.insert(coords); // If it is of a different colour, you can move there by murdering it.
+    if (cellHasUnit(searchrow, searchcol)) {
+      if (!cellHasAlly(searchrow, searchcol)) {
+	_dangerzones.insert(std::make_pair(searchrow, searchcol));
       }
       break; // The square has a blocking unit. Break the while loop.
-    } // Else, it is an empty zone.
-    std::pair<int, int> coords(searchrow, searchcol);
-    _dangerzones.insert(coords); // Tagged this as a threat zone.
-    searchrow--;
+    } else {
+      _dangerzones.insert(std::make_pair(searchrow, searchcol));
+      searchrow--;
+    }
   }
 }

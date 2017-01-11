@@ -13,6 +13,7 @@ class Cannon : public Unit {
   void threatRange(std::set<std::pair<int, int> >& _dangerzones); // Instantiation of pure virtual in Unit.
   // Note: Cannon's strike range differs from its move range.
   // Hence, move function does not borrow code from threatRange function.
+  void moveRange(std::set<std::pair<int, int> >& _dangerzones);
 };
 
 #endif

@@ -18,6 +18,10 @@
 // Black unit is past river if row > 4.
 #define RED_PAST_RIVER 5
 // Red unit is past river if row < 5.
+#define BLACK_PALACE_FRONT 2
+// Black Palace grounds are from R0C3 to R2C5 inclusive.
+#define RED_PALACE_FRONT 7
+// Red Palace grounds are from R7C3 to R9C5 inclusive.
 #define NUMROWS 10
 #define NUMCOLS 9
 

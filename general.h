@@ -13,6 +13,7 @@ class General : public Unit {
   void threatRange(std::set<std::pair<int, int> >& _dangerzones); // Instantiation of pure virtual in Unit.
   // General is a weird case: his threatRange vs an opponent General is a straight line of sight vertically.
   // Otherwise, his threatRange is a single non-diagonal step inside the Palace only.
+  bool withinPalace(const int _row, const int _col);
 };
 
 #endif

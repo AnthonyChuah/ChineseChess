@@ -86,15 +86,25 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
     if (black_turn) {
       std::cout << "Red is in check";
       red_in_check = true;
+      if (++consec_checks_red >= 3) {
+	std::cout << "\nBlack has placed Red in check for 3 turns, and therefore loses. Red wins!\n";
+	exit(1);
+      }
     } else {
       std::cout << "Black is in check";
       black_in_check = true;
+      if (++consec_checks_black >= 3) {
+	std::cout << "\nRed has placed Black in check for 3 turns, and therefore loses. Black wins!\n";
+	exit(1);
+      }
     }
   } else {
     if (black_turn) {
       red_in_check = false;
+      consec_checks_red = 0;
     } else {
       black_in_check = false;
+      consec_checks_black = 0;
     }
   }
   // Assess if opponent is in check.
@@ -119,6 +129,14 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
     if (assessStale(!black_turn)) {
       std::cout << "Black is in stalemate\n";
     }
+  }
+  if (consec_checks_black) {
+    std::cout << "Black has been checked consecutively for " << consec_checks_black
+	      << " turns. Red will lose if it checks Black 3 times consecutively.\n";
+  }
+  if (consec_checks_red) {
+    std::cout << "Red has been checked consecutively for " << consec_checks_red
+	      << " turns. Black will lose if it checks Red 3 times consecutively.\n";
   }
   // Change turns to the other player.
   black_turn = !black_turn;

@@ -11,6 +11,7 @@ class Elephant : public Unit {
   std::string name() const;
   bool move(const int _rowsteps, const int _colsteps); // Instantiation of pure virtual function in Unit.
   void threatRange(std::set<std::pair<int, int> >& _dangerzones); // Instantiation of pure virtual in Unit.
+  bool beforeRiver(const int _row); // True if row and col specify coordinate before the river.
 };
 
 #endif
