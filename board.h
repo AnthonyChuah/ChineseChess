@@ -25,8 +25,8 @@ class Board {
  private:
   void initSetup(); // Helper function places units into start positions.
   bool black_turn; // true if it is black player's turn.
-  bool red_in_check; // true if red is in check.
   bool black_in_check; // true if black is in check.
+  bool red_in_check; // true if red is in check.
   int consec_checks_black; // It can go from 0 to 1 to 2, but 3 means an instant loss for checking player!
   int consec_checks_red;
   Unit* board[NUMROWS][NUMCOLS];

@@ -30,8 +30,8 @@
 #include <string>
 #include <cstddef>
 #include <utility>
-#include <set>
 #include <cstdlib>
+#include <set>
 
 // Header files included in the correct order.
 #include "unit.h"

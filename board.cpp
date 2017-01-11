@@ -45,13 +45,13 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
     return false;
   }
   // Calculate the relative-movement in terms of row and col offsets.
-  int rowstep = to_row - from_row; int colstep = to_col - from_col;
-  std::string mover_name = board[from_row][from_col]->name();
+  int rowstep = _torow - _fromrow; int colstep = _tocol - _fromcol;
+  std::string mover_name = board[_fromrow][_fromcol]->name();
   std::string victim_name;
   bool commit_murder = false;
-  if (board[to_row][to_col] != NULL) {
+  if (board[_torow][_tocol] != NULL) {
     commit_murder = true;
-    victim_name = board[to_row][to_col]->name();
+    victim_name = board[_torow][_tocol]->name();
   }
   std::string player_name, opponent_name;
   if (black_turn) {
@@ -62,16 +62,16 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
     opponent_name = "Black";
   }
   // Call the unit's movement function polymorphically.
-  if (board[from_row][from_col]->move(rowstep, colstep)) {
-    std::cout << player_name << "'s " << mover_name << " moved from R" << from_row << "C" << from_col << " to R"
-	      << to_row << "C" << to_col;
+  if (board[_fromrow][_fromcol]->move(rowstep, colstep)) {
+    std::cout << player_name << "'s " << mover_name << " moved from R" << _fromrow << "C" << _fromcol << " to R"
+	      << _torow << "C" << _tocol;
     if (commit_murder) {
       std::cout << " murdering " << opponent_name << "'s " << victim_name;
     }
     std::cout << "\n";
   } else {
-    std::cout << player_name << "'s " << mover_name << " cannot move from R" << from_row << "C" << from_col
-	      << " to R" << to_row << "C" << to_col << "! Try again.\n";
+    std::cout << player_name << "'s " << mover_name << " cannot move from R" << _fromrow << "C" << _fromcol
+	      << " to R" << _torow << "C" << _tocol << "! Try again.\n";
     return false;
   }
   // Uncheck the active player, if it was in check.

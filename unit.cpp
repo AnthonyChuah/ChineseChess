@@ -1,13 +1,13 @@
-#include "unit.h"
+#include "includes.h"
 
 Unit::Unit() : boardptr(NULL), row(-1), col(-1), is_black(true) {
-  type = UNIT;
+  unit_type = UNIT;
   icon = "_U_";
 }
 
 Unit::Unit(int _row, int _col, bool _black, Board* _ptr) :
   boardptr(_ptr), row(_row), col(_col), is_black(_black) {
-  type = UNIT;
+  unit_type = UNIT;
   if (is_black) {
     icon = "_U_";
   } else {
