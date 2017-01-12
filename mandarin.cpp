@@ -1,22 +1,22 @@
 #include "mandarin.h"
 
-Mandarin::Mandarin() : boardptr(NULL), row(-1), col(-1), is_black(true) {
-  type = MANDARIN;
-  icon = "_M_";
+Mandarin::Mandarin() : Unit() {
+  unit_type = MANDARIN;
+  text_icon = "_M_";
 }
 
 Mandarin::Mandarin(int _row, int _col, bool _black, Board* _ptr) :
-  boardptr(_ptr), row(_row), col(_col), is_black(_black) {
-  type = MANDARIN;
+  Unit(_row, _col, _black, _ptr) {
+  unit_type = MANDARIN;
   if (is_black) {
-    icon = "_M_";
+    text_icon = "_M_";
   } else {
-    icon = "*M*";
+    text_icon = "*M*";
   }
 }
 
 Mandarin::~Mandarin() {}
-std::string Mandarin::name() { return "Mandarin"; }
+std::string Mandarin::name() const { return "Mandarin"; }
 
 bool Mandarin::move(const int _rowsteps, const int _colsteps) {
   std::set<std::pair<int, int> > range;
@@ -48,16 +48,16 @@ bool Mandarin::move(const int _rowsteps, const int _colsteps) {
 
 void Mandarin::threatRange(std::set<std::pair<int, int> >& _dangerzones) {
   if (withinPalace(row + 1, col + 1)) {
-    addToThreatRange(row + 1, col + 1);
+    addToThreatRange(row + 1, col + 1, _dangerzones);
   }
   if (withinPalace(row - 1, col - 1)) {
-    addToThreatRange(row - 1, col - 1);
+    addToThreatRange(row - 1, col - 1, _dangerzones);
   }
   if (withinPalace(row + 1, col - 1)) {
-    addToThreatRange(row + 1, col - 1);
+    addToThreatRange(row + 1, col - 1, _dangerzones);
   }
   if (withinPalace(row - 1, col + 1)) {
-    addToThreatRange(row - 1, col + 1);
+    addToThreatRange(row - 1, col + 1, _dangerzones);
   }
 }
 

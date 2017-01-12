@@ -1,22 +1,22 @@
 #include "general.h"
 
-General::General() : boardptr(NULL), row(-1), col(-1), is_black(true) {
-  type = GENERAL;
-  icon = "_G_";
+General::General() : Unit() {
+  unit_type = GENERAL;
+  text_icon = "_G_";
 }
 
 General::General(int _row, int _col, bool _black, Board* _ptr) :
-  boardptr(_ptr), row(_row), col(_col), is_black(_black) {
-  type = GENERAL;
+  Unit(_row, _col, _black, _ptr) {
+  unit_type = GENERAL;
   if (is_black) {
-    icon = "_G_";
+    text_icon = "_G_";
   } else {
-    icon = "*G*";
+    text_icon = "*G*";
   }
 }
 
 General::~General() {}
-std::string General::name() { return "General"; }
+std::string General::name() const { return "General"; }
 
 bool General::withinPalace(const int _row, const int _col) {
   if (_col < 3 || _col > 5)
@@ -61,13 +61,13 @@ bool General::move(const int _rowsteps, const int _colsteps) {
 
 void General::threatRange(std::set<std::pair<int, int> >& _dangerzones) {
   if (withinPalace(row + 1, col))
-    addToThreatRange(row + 1, col);
+    addToThreatRange(row + 1, col, _dangerzones);
   if (withinPalace(row - 1, col))
-    addToThreatRange(row - 1, col);
+    addToThreatRange(row - 1, col, _dangerzones);
   if (withinPalace(row, col + 1))
-    addToThreatRange(row, col + 1);
+    addToThreatRange(row, col + 1, _dangerzones);
   if (withinPalace(row, col - 1))
-    addToThreatRange(row, col - 1);
+    addToThreatRange(row, col - 1, _dangerzones);
   if (colour() == BLACK) {
     for (int mrow = row; mrow < NUMROWS; ++mrow) {
       if (cellHasUnit(mrow, col)) {

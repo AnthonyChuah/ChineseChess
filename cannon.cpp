@@ -1,22 +1,22 @@
 #include "cannon.h"
 
-Cannon::Cannon() : boardptr(NULL), row(-1), col(-1), is_black(true) {
-  type = CANNON;
-  icon = "_C_";
+Cannon::Cannon() : Unit() {
+  unit_type = CANNON;
+  text_icon = "_C_";
 }
 
 Cannon::Cannon(int _row, int _col, bool _black, Board* _ptr) :
-  boardptr(_ptr), row(_row), col(_col), is_black(_black) {
-  type = CANNON;
+  Unit(_row, _col, _black, _ptr) {
+  unit_type = CANNON;
   if (is_black) {
-    icon = "_C_";
+    text_icon = "_C_";
   } else {
-    icon = "*C*";
+    text_icon = "*C*";
   }
 }
 
 Cannon::~Cannon() {}
-std::string Cannon::name() { return "Cannon"; }
+std::string Cannon::name() const { return "Cannon"; }
 
 bool Cannon::move(const int _rowsteps, const int _colsteps) {
   std::set<std::pair<int, int> > range;
@@ -56,8 +56,7 @@ void Cannon::threatRange(std::set<std::pair<int, int> >& _dangerzones) {
       if (cellHasUnit(arow, acol)) {
 	if (!cellHasAlly(arow, acol))
 	  _dangerzones.insert(std::make_pair(arow, acol));
-      } else {
-	continue;
+	break;
       }
     }
   }
@@ -69,8 +68,7 @@ void Cannon::threatRange(std::set<std::pair<int, int> >& _dangerzones) {
       if (cellHasUnit(arow, acol)) {
 	if (!cellHasAlly(arow, acol))
 	  _dangerzones.insert(std::make_pair(arow, acol));
-      } else {
-	continue;
+	break;
       }
     }
   }
@@ -82,8 +80,7 @@ void Cannon::threatRange(std::set<std::pair<int, int> >& _dangerzones) {
       if (cellHasUnit(arow, acol)) {
 	if (!cellHasAlly(arow, acol))
 	  _dangerzones.insert(std::make_pair(arow, acol));
-      } else {
-	continue;
+	break;
       }
     }
   }
@@ -95,8 +92,7 @@ void Cannon::threatRange(std::set<std::pair<int, int> >& _dangerzones) {
       if (cellHasUnit(arow, acol)) {
 	if (!cellHasAlly(arow, acol))
 	  _dangerzones.insert(std::make_pair(arow, acol));
-      } else {
-	continue;
+	break;
       }
     }
   }

@@ -21,10 +21,11 @@ class Unit {
   // set of coordinates which are within the strike-range of the units of a given player.
   virtual void moveRange(std::set<std::pair<int, int> >& _dangerzones); // For General, Cannon.
  protected:
-  bool cellHasUnit(const int _row, const int _col);
-  bool cellHasAlly(const int _row, const int _col);
+  bool cellWithinBoard(const int _row, const int _col) const;
+  bool cellHasUnit(const int _row, const int _col) const;
+  bool cellHasAlly(const int _row, const int _col) const;
   Unit* occupyCell(const int _row, const int _col);
-  void addToThreatRange(int _row, int _col, std::set<std::pair<int, int> >& _dangerzones);
+  void addToThreatRange(const int _row, const int _col, std::set<std::pair<int, int> >& _dangerzones);
   Board* boardptr;
   int row;
   int col;

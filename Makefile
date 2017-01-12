@@ -13,6 +13,9 @@ unit.o: unit.cpp board.h unit.h includes.h
 soldier.o: soldier.cpp board.h unit.h soldier.h includes.h
 	g++ -Wall -g -c soldier.cpp
 
+cannon.o: cannon.cpp board.h unit.h cannon.h includes.h
+	g++ -Wall -g -c cannon.cpp
+
 chariot.o: chariot.cpp board.h unit.h chariot.h includes.h
 	g++ -Wall -g -c chariot.cpp
 

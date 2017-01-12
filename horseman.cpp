@@ -1,22 +1,22 @@
 #include "horseman.h"
 
-Horseman::Horseman() : boardptr(NULL), row(-1), col(-1), is_black(true) {
-  type = HORSEMAN;
-  icon = "_H_";
+Horseman::Horseman() : Unit() {
+  unit_type = HORSEMAN;
+  text_icon = "_H_";
 }
 
 Horseman::Horseman(int _row, int _col, bool _black, Board* _ptr) :
-  boardptr(_ptr), row(_row), col(_col), is_black(_black) {
-  type = HORSEMAN;
+  Unit(_row, _col, _black, _ptr) {
+  unit_type = HORSEMAN;
   if (is_black) {
-    icon = "_H_";
+    text_icon = "_H_";
   } else {
-    icon = "*H*";
+    text_icon = "*H*";
   }
 }
 
 Horseman::~Horseman() {}
-std::string Horseman::name() { return "Horseman"; }
+std::string Horseman::name() const { return "Horseman"; }
 
 bool Horseman::move(const int _rowsteps, const int _colsteps) {
   std::set<std::pair<int, int> > range;
@@ -49,19 +49,19 @@ bool Horseman::move(const int _rowsteps, const int _colsteps) {
 void Horseman::threatRange(std::set<std::pair<int, int> >& _dangerzones) {
   // Lazy-evaluation should short-circuit the conditional, so no potential segfault.
   if (cellWithinBoard(row + 1, col) && !cellHasUnit(row + 1, col)) {
-    addToThreatRange(row + 2, col - 1);
-    addToThreatRange(row + 2, col + 1);
+    addToThreatRange(row + 2, col - 1, _dangerzones);
+    addToThreatRange(row + 2, col + 1, _dangerzones);
   }
   if (cellWithinBoard(row - 1, col) && !cellHasUnit(row - 1, col)) {
-    addToThreatRange(row - 2, col - 1);
-    addToThreatRange(row - 2, col + 1);
+    addToThreatRange(row - 2, col - 1, _dangerzones);
+    addToThreatRange(row - 2, col + 1, _dangerzones);
   }
   if (cellWithinBoard(row, col + 1) && !cellHasUnit(row, col + 1)) {
-    addToThreatRange(row - 1, col + 2);
-    addToThreatRange(row + 1, col + 2); 
+    addToThreatRange(row - 1, col + 2, _dangerzones);
+    addToThreatRange(row + 1, col + 2, _dangerzones); 
   }
   if (cellWithinBoard(row, col - 1) && !cellHasUnit(row, col - 1)) {
-    addToThreatRange(row - 1, col - 2);
-    addToThreatRange(row + 1, col - 2);
+    addToThreatRange(row - 1, col - 2, _dangerzones);
+    addToThreatRange(row + 1, col - 2, _dangerzones);
   }
 }

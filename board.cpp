@@ -3,14 +3,7 @@
 Board::Board() : black_turn(false), black_in_check(false), red_in_check(false),
 		 consec_checks_black(0), consec_checks_red(0) {
   initSetup();
-  std::cout << "A new day has begun. The morning sun rises slowly over the parched earth.\n"
-	    << "Spanning this arid expanse are two opposing armies, spears and axes sharpened to kill.\n"
-	    << "Before this day ends, the blood of legions will water the earth like so much rainfall.\n"
-	    << "The carnage will be savage and legendary. Slaughter, or be slaughtered.\n"
-	    << "May you rip your foe's heart out of his chest and hew his limbs in twain.\n"
-	    << "Drive your foes before you, and hear the lamentations of their women and children.\n"
-	    << "May your roar of triumph shake the heavens.\n"
-	    << "Good luck, commander.\n\n";
+  std::cout << "Insert Flavour Text Intro here.\n";
 }
 
 Board::~Board() {
@@ -132,11 +125,13 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
   }
   if (consec_checks_black) {
     std::cout << "Black has been checked consecutively for " << consec_checks_black
-	      << " turns. Red will lose if it checks Black 3 times consecutively.\n";
+	      << " turns. The rules forbid repetitive checking for 3 turns consecutively.\n"
+	      << "It is up to the players to decide what constitutes repetitive checking.\n";
   }
   if (consec_checks_red) {
     std::cout << "Red has been checked consecutively for " << consec_checks_red
-	      << " turns. Black will lose if it checks Red 3 times consecutively.\n";
+	      << " turns. The rules forbid repetitive checking for 3 turns consecutively.\n"
+	      << "It is up to the players to decide what constitutes repetitive checking.\n";
   }
   // Change turns to the other player.
   black_turn = !black_turn;
@@ -178,15 +173,14 @@ void Board::displayBoard(std::ostream& _outs) {
   }
   if (black_in_check) {
     _outs << "BLACK is in CHECK!\n";
-  } else {
+  } else if (red_in_check) {
     _outs << "RED is in CHECK!\n";
   }
 }
 
 void Board::initSetup() {
-  for (int i = 1; i < NUMROWS-1; ++i) {
+  for (int i = 0; i < NUMROWS; ++i) {
     for (int j = 0; j < NUMCOLS; ++j) {
-      delete board[i][j];
       board[i][j] = NULL;
     }
   }

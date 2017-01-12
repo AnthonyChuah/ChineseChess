@@ -1,22 +1,22 @@
 #include "soldier.h"
 
-Soldier::Soldier() : boardptr(NULL), row(-1), col(-1), is_black(true) {
-  type = SOLDIER;
-  icon = "_S_";
+Soldier::Soldier() : Unit() {
+  unit_type = SOLDIER;
+  text_icon = "_S_";
 }
 
 Soldier::Soldier(int _row, int _col, bool _black, Board* _ptr) :
-  boardptr(_ptr), row(_row), col(_col), is_black(_black) {
-  type = SOLDIER;
+  Unit(_row, _col, _black, _ptr) {
+  unit_type = SOLDIER;
   if (is_black) {
-    icon = "_S_";
+    text_icon = "_S_";
   } else {
-    icon = "*S*";
+    text_icon = "*S*";
   }
 }
 
 Soldier::~Soldier() {}
-std::string Soldier::name() { return "Soldier"; }
+std::string Soldier::name() const { return "Soldier"; }
 
 bool Soldier::move(const int _rowsteps, const int _colsteps) {
   std::set<std::pair<int, int> > range;
@@ -48,13 +48,13 @@ bool Soldier::move(const int _rowsteps, const int _colsteps) {
 
 void Soldier::threatRange(std::set<std::pair<int, int> >& _dangerzones) {
   if (colour() == BLACK) {
-    addToThreatRange(row + 1, col); // If it's black you can attack downwards.
+    addToThreatRange(row + 1, col, _dangerzones); // If it's black you can attack downwards.
   } else {
-    addToThreatRange(row - 1, col); // If it's red you can attack upwards.
+    addToThreatRange(row - 1, col, _dangerzones); // If it's red you can attack upwards.
   }
   if (!beforeRiver(row)) {
-    addToThreatRange(row, col - 1);
-    addToThreatRange(row, col + 1);
+    addToThreatRange(row, col - 1, _dangerzones);
+    addToThreatRange(row, col + 1, _dangerzones);
   }
 }
 
