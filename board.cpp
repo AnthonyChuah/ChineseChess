@@ -116,11 +116,13 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
     // Check if Red is in stalemate.
     if (assessStale(!black_turn)) {
       std::cout << "Red is in stalemate\n";
+      exit(1);
     }
   } else if (!black_turn && !black_in_check) {
     // Check if Black is in stalemate.
     if (assessStale(!black_turn)) {
       std::cout << "Black is in stalemate\n";
+      exit(1);
     }
   }
   if (consec_checks_black) {
