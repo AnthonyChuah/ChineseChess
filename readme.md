@@ -5,6 +5,18 @@
 Chinese Chess (also known as Elephant Chess) is a game similar to chess. The objective is to place your opponent's general in checkmate.
 The rules are written here: http://www.chessvariants.com/xiangqi.html
 
+## Compilation
+
+This builds only on a Linux machine with SDL2, SDL2_image, and SDL2_ttf libraries installed. To install those libraries:
+
+* sudo apt-get install libsdl2-dev
+* sudo apt-get install libsdl2-image-dev
+* sudo apt-get install libsdl2-ttf-dev
+
+With those installed, type 'make' at the top-level directory of the repo to create an executable 'game'.
+
+Execute with './game gui' and the game will launch.
+
 ## Board Layout
 
 Black pieces, signified by underscores around the unit letter, e.g. \_R\_ for the Black ChaRiot.
