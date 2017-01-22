@@ -15,6 +15,7 @@ Board::~Board() {
 }
 
 bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow, const int _tocol) {
+  textDisplay = ": ";
   // Check if: (1) any coordinate is outside of the confines of the board.
   if (_fromrow < 0 || _fromrow >= NUMROWS || _fromcol < 0 || _fromcol >= NUMCOLS) {
     std::cout << "The FROM coordinates fell outside of the board. Try again.\n";
@@ -26,13 +27,16 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
   // Check if: (1) unit exists in from location, (2) unit corresponds to player's colour.
   if (board[_fromrow][_fromcol] == NULL) {
     std::cout << "The FROM coordinate specifies a blank square that has no unit. Try again.\n";
+    textDisplay.append("You attempted to select an empty square to command. Try again. ");
     return false;
   } else if (board[_fromrow][_fromcol]->colour() != black_turn) {
     std::cout << "It is not ";
     if (!black_turn) {
       std::cout << "Black";
+      textDisplay.append("It is not Black's turn to move! Try again. ");
     } else {
       std::cout << "Red";
+      textDisplay.append("It is not Red's turn to move! Try again. ");
     }
     std::cout << "'s turn to move!\n";
     return false;
@@ -63,6 +67,7 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
     }
     std::cout << "\n";
   } else {
+    textDisplay.append("That move is invalid! Try again. ");
     std::cout << player_name << "'s " << mover_name << " cannot move from R" << _fromrow << "C" << _fromcol
 	      << " to R" << _torow << "C" << _tocol << "! Try again.\n";
     return false;
@@ -77,17 +82,19 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
   if (assessCheck(!black_turn)) {
     // If it's black's turn, this calls the assessment for red.
     if (black_turn) {
+      textDisplay.append("Red is in check. ");
       std::cout << "Red is in check";
       red_in_check = true;
       if (++consec_checks_red >= 3) {
-	std::cout << "\nBlack has placed Red in check for 3 turns, and therefore loses. Red wins!\n";
+	std::cout << "\nBlack has placed Red in check for 3 turns or more turns.\n";
 	exit(1);
       }
     } else {
+      textDisplay.append("Black is in check. ");
       std::cout << "Black is in check";
       black_in_check = true;
       if (++consec_checks_black >= 3) {
-	std::cout << "\nRed has placed Black in check for 3 turns, and therefore loses. Black wins!\n";
+	std::cout << "\nRed has placed Black in check for 3 or more turns.\n";
 	exit(1);
       }
     }
@@ -102,6 +109,7 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
   }
   // Assess if opponent is in check.
   if (assessMate(!black_turn)) {
+    textDisplay.append("Checkmate! ");
     // This means that the opponent is in checkmate.
     std::cout << "mate\n";
     exit(1);
@@ -116,11 +124,13 @@ bool Board::submitMove(const int _fromrow, const int _fromcol, const int _torow,
     // Check if Red is in stalemate.
     if (assessStale(!black_turn)) {
       std::cout << "Red is in stalemate\n";
+      textDisplay.append("Red is in stalemate. ");
       exit(1);
     }
   } else if (!black_turn && !black_in_check) {
     // Check if Black is in stalemate.
     if (assessStale(!black_turn)) {
+      textDisplay.append("Black is in stalemate. ");
       std::cout << "Black is in stalemate\n";
       exit(1);
     }
@@ -221,6 +231,16 @@ void Board::initSetup() {
   General* generalb; General* generalr;
   generalb = new General(0, 4, true, this); board[0][4] = generalb;
   generalr = new General(9, 4, false, this); board[9][4] = generalr;
+  textDisplay = ": ";
+  gWindow = NULL;
+  gRenderer = NULL;
+  gSpritesTexture = NULL;
+  gBoardTexture = NULL;
+  gTextTexture = NULL;
+  gFont = NULL;
+  isMouseOver = false;
+  isMouseDown = false;
+  isSelectedSquare = false;
 }
 
 bool Board::assessCheck(bool _black) {
@@ -279,4 +299,280 @@ bool Board::assessMate(bool _black) {
     return assessStale(!_black);
   }
   return false; // If neither pair of conditions hold, it is not a checkmate.
+}
+
+bool Board::initGraphics() {
+  bool isSuccess = true;
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << "\n";
+    isSuccess = false;
+  } else {
+    if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
+      std::cout << "Warning: Linear texture filtering not enabled!";
+    }
+    gWindow = SDL_CreateWindow("Chinese Chess Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, BOARD_WIDTH, BOARD_HEIGHT + TEXT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    if (gWindow == NULL) {
+      std::cout << "Window could not be created! SDL Error: " << SDL_GetError() << "\n";
+      isSuccess = false;
+    } else {
+      gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+      if (gRenderer == NULL) {
+	std::cout << "Renderer could not be created! SDL Error: " << SDL_GetError() << "\n";
+	isSuccess = false;
+      } else {
+	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	int imgFlags = IMG_INIT_PNG;
+	if (!(IMG_Init(imgFlags) & imgFlags)) {
+	  std::cout << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << "\n";
+	  isSuccess = false;
+	}
+      }
+    }
+  }
+  upperViewport.x = 0;
+  upperViewport.y = 0;
+  upperViewport.w = BOARD_WIDTH;
+  upperViewport.h = BOARD_HEIGHT;
+  lowerViewport.x = 0;
+  lowerViewport.y = BOARD_HEIGHT;
+  lowerViewport.w = TEXT_WINDOW_WIDTH;
+  lowerViewport.h = TEXT_WINDOW_HEIGHT;
+  textColor.r = 0; textColor.g = 0; textColor.b = 0; textColor.a = 0xFF;
+  return isSuccess;
+}
+
+bool Board::loadMedia() {
+  bool isSuccess = true;
+  SDL_Surface* surface = IMG_Load("chessboard.png");
+  if (surface == NULL) {
+    std::cout << "Unable to load image! SDL_image Error: " << IMG_GetError() << "\n";
+    isSuccess = true;
+  } else {
+    gBoardTexture = SDL_CreateTextureFromSurface(gRenderer, surface);
+    if (gBoardTexture == NULL) {
+      std::cout << "Unable to create texture! SDL Error: " << SDL_GetError() << "\n";
+      isSuccess = false;
+    }
+  }
+  SDL_FreeSurface(surface);
+  surface = IMG_Load("spritesheet.png");
+  if (surface == NULL) {
+    isSuccess = true;
+    std::cout << "Unable to load image! SDL_image Error: " << IMG_GetError() << "\n";
+  } else {
+    SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0, 0, 0));
+    gSpritesTexture = SDL_CreateTextureFromSurface(gRenderer, surface);
+    if (gSpritesTexture == NULL) {
+      std::cout << "Unable to create texture! SDL Error: " << SDL_GetError() << "\n";
+      isSuccess = false;
+    }
+  }
+  SDL_FreeSurface(surface);
+  for (int i = SPRITE_RED; i <= SPRITE_BLACK; ++i) {
+    for (int j = SPRITE_GENERAL; j <= SPRITE_SOLDIER; ++j) {
+      int spriteNum = i*7 + j;
+      gSpriteClips[spriteNum].x = j * SPRITE_WIDTH;
+      gSpriteClips[spriteNum].y = i * SPRITE_HEIGHT;
+      gSpriteClips[spriteNum].w = SPRITE_WIDTH;
+      gSpriteClips[spriteNum].h = SPRITE_WIDTH;
+    }
+  }
+  if (TTF_Init() == -1) {
+    std::cout << "SDL_ttf could not initialize!\n";
+    return false;
+  }
+  gFont = TTF_OpenFont( "Helvetica.ttf", 12 );
+  if (gFont == NULL) {
+    std::cout << "Failed to load font! Error: " << TTF_GetError() << "\n";
+    return false;
+  }
+  surface = TTF_RenderText_Solid(gFont, "Welcome to Chinese Chess!", textColor);
+  if (surface == NULL) {
+    std::cout << "Unable to create texture from rendered text! SDL Error: " << SDL_GetError() << "\n";
+    isSuccess = false;
+  } else {
+    gTextTexture = SDL_CreateTextureFromSurface(gRenderer, surface);
+    if (gTextTexture == NULL) {
+      std::cout << "Unable to create texture from rendered text! SDL Error: " << SDL_GetError() << "\n";
+      isSuccess = false;
+    }
+  }
+  SDL_FreeSurface(surface);
+  return isSuccess;
+}
+
+void Board::closeGraphics() {
+  if (gTextTexture != NULL) {
+    SDL_DestroyTexture(gTextTexture);
+    gTextTexture = NULL;
+  }
+  if (gSpritesTexture != NULL) {
+    SDL_DestroyTexture(gSpritesTexture);
+    gSpritesTexture = NULL;
+  }
+  if (gBoardTexture != NULL) {
+    SDL_DestroyTexture(gBoardTexture);
+    gBoardTexture = NULL;
+  }
+  TTF_CloseFont(gFont);
+  gFont = NULL;
+  SDL_DestroyRenderer(gRenderer);
+  SDL_DestroyWindow(gWindow);
+  gWindow = NULL;
+  gRenderer = NULL;
+  TTF_Quit();
+  IMG_Quit();
+  SDL_Quit();
+}
+
+void Board::renderSprite(int _x, int _y) {
+  // This function should never be called on an empty cell, or else segfault happens.
+  int spriteNum;
+  if (board[_y][_x]->colour() == BLACK) {
+    spriteNum = 7; // Black sprites 7 General, 8 Mandarin, ..., 13 Soldier.
+  } else {
+    spriteNum = 0;
+  }
+  switch(board[_y][_x]->type()) {
+  case SOLDIER: spriteNum += SPRITE_SOLDIER;
+    break;
+  case CANNON: spriteNum += SPRITE_CANNON;
+    break;
+  case CHARIOT: spriteNum += SPRITE_CHARIOT;
+    break;
+  case HORSEMAN: spriteNum += SPRITE_HORSEMAN;
+    break;
+  case ELEPHANT: spriteNum += SPRITE_ELEPHANT;
+    break;
+  case MANDARIN: spriteNum += SPRITE_MANDARIN;
+    break;
+  case GENERAL: spriteNum += SPRITE_GENERAL;
+    break;
+  }
+  // The clip in the spritesheet we want to render is gSpriteClips[spriteNum].
+  // The board area is 474 by 499 pixels. Each piece should occupy a space 48 by 48.
+  // Top left piece begins at 22, 9 pixels.
+  int xpix = 22 + _x * PIECE_WIDTH, ypix = 9 + _y * PIECE_HEIGHT;
+  SDL_Rect renderSquare = { xpix, ypix, PIECE_WIDTH, PIECE_HEIGHT };
+  SDL_RenderCopy(gRenderer, gSpritesTexture, &gSpriteClips[spriteNum], &renderSquare);
+}
+
+void Board::renderUnits() {
+  for (int i = 0; i < NUMROWS; ++i) {
+    for (int j = 0; j < NUMCOLS; ++j) {
+      if (board[i][j] != NULL) renderSprite(j, i);
+    }
+  }
+}
+
+void Board::renderText(std::string _text) {
+  SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, _text.c_str(), textColor);
+  // SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, "Placeholder text testing", textColor);
+  if (textSurface == NULL) {
+    std::cout << "Board::renderText unable to render text surface!\n";
+  }
+  gTextTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+  SDL_FreeSurface(textSurface);
+}
+
+void Board::handleMouseEvent(SDL_Event* e) {
+  // bool isMouseOver, pair<int, int> mousedSquare.
+  // Get type == MOUSE_OVER, then check if inside board. If yes, set isMouseOver = true.
+  // Then find location of mouse, and write into pair<int, int> mousedSquare.
+  if (e->type == SDL_MOUSEMOTION) {
+    int x, y; SDL_GetMouseState(&x, &y);
+    if (x < 22 || x >= (22 + NUMCOLS*PIECE_WIDTH) || y < 9 || y >= (9 + NUMROWS*PIECE_HEIGHT)) {
+      isMouseOver = false;
+    } else {
+      isMouseOver = true;
+      mousedSquare.first = (x - 22) / PIECE_WIDTH;
+      mousedSquare.second = (y - 9) / PIECE_HEIGHT;
+    }
+  }
+  // bool isSelectedSquare, pair<int, int> selectedSquare.
+  // If !isSelectedSquare, if mouse button down, isSS = true and write into pair<int, int> SS
+  // using mouse location.
+  // If isSS, if mouse button down, isSS = false, submitMove from SS to mouse location.
+  if (e->type == SDL_MOUSEBUTTONDOWN) {
+    isMouseDown = true;
+  }
+  if (isMouseDown && e->type == SDL_MOUSEBUTTONUP) {
+    isMouseDown = false;
+    int x, y; SDL_GetMouseState(&x, &y);
+    if (x < 22 || x >= (22 + NUMCOLS*PIECE_WIDTH) || y < 9 || y >= (9 + NUMROWS*PIECE_HEIGHT)) {
+      // Do nothing.
+    } else {
+      if (isSelectedSquare) {
+	isSelectedSquare = false; // If isSelectedSq then you're trying to give destination.
+	int from_row = selectedSquare.second, from_col = selectedSquare.first;
+	int to_row = (y - 9) / PIECE_HEIGHT, to_col = (x - 22) / PIECE_WIDTH;
+	submitMove(from_row, from_col, to_row, to_col);
+      } else {
+	isSelectedSquare = true; // If !isSelectedSq then you're trying to select a piece.
+	selectedSquare.first = (x - 22) / PIECE_WIDTH;
+	selectedSquare.second = (y - 9) / PIECE_HEIGHT;
+      }
+    }
+  }
+}
+
+void Board::drawMouseOver() {
+  // Render the green box around moused over square.
+  if (isMouseOver) {
+    int x = mousedSquare.first * PIECE_WIDTH + 22;
+    int y = mousedSquare.second * PIECE_HEIGHT + 9;
+    SDL_Rect outlineRect = { x, y, PIECE_WIDTH, PIECE_HEIGHT };
+    SDL_SetRenderDrawColor(gRenderer, 0, 0xFF, 0, 0xFF);
+    SDL_RenderDrawRect(gRenderer, &outlineRect);
+  }
+}
+
+void Board::drawMouseClick() {
+  // Render the red box around the selected square.
+  if (isSelectedSquare) {
+    int x = selectedSquare.first * PIECE_WIDTH + 22;
+    int y = selectedSquare.second * PIECE_HEIGHT + 9;
+    SDL_Rect outlineRect = { x, y, PIECE_WIDTH, PIECE_HEIGHT };
+    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0, 0, 0xFF);
+    SDL_RenderDrawRect(gRenderer, &outlineRect);
+  }
+}
+
+void Board::mainloopGUI() {
+  if (!initGraphics()) {
+  } else {
+    if (!loadMedia()) {
+    } else {
+      bool quit = false;
+      SDL_Event e;
+      while (!quit) {
+	while (SDL_PollEvent(&e) != 0) {
+	  if (e.type == SDL_QUIT) {
+	    quit = true;
+	  }
+	}
+	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	SDL_RenderClear(gRenderer);
+	SDL_RenderSetViewport(gRenderer, &upperViewport);
+	SDL_RenderCopy(gRenderer, gBoardTexture, NULL, NULL); // Renders background image to top viewport.
+	handleMouseEvent(&e); // Mouseover or button-down, use that to change object state.
+	renderUnits(); // Render the chess pieces.
+	drawMouseOver(); // If a square has been moused over, make green box around it.
+	drawMouseClick(); // If a square has been selected for control, make red box around it.
+	SDL_RenderSetViewport(gRenderer, &lowerViewport);
+	renderText(textDisplay); // Render text to lower viewport.
+	int textw = 0, texth = 0;
+	SDL_Rect textArea;
+	if (TTF_SizeText(gFont, textDisplay.c_str(), &textw, &texth) != -1) {
+	  textArea.x = 0; textArea.y = 0;
+	  textArea.w = textw; textArea.h = texth;
+	} else {
+	  std::cout << "TTF_SizeText could not find size of text!\n";
+	}
+	SDL_RenderCopy(gRenderer, gTextTexture, NULL, &textArea);
+	SDL_RenderPresent(gRenderer);
+      }
+      closeGraphics();
+    }
+  }
 }
