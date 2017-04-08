@@ -62,3 +62,7 @@ The 3-by-3 square containing the General and two Mandarins is the Palace. They c
 * G: General
 * C: Cannon
 * S: Soldier
+
+## Issues
+
+Checkmate with "Flying General" protected Chariot does not correctly trigger Checkmate. Debug.
